@@ -2,6 +2,36 @@ import speech_recognition as sr
 import os
 import pyttsx3
 import webbrowser
+import datetime
+import google.generativeai as genai
+from config import apikey
+
+def ai(prompt):
+    genai.configure(api_key=apikey)
+    # Model Setup
+    generation_config = {
+        "temperature": 0.9,
+        "top_p": 1,
+        "top_k": 1,
+        "max_output_tokens": 2048,
+    }
+
+    safety_settings = [
+        {
+            "category": "HARM_CATEGORY_HARASSMENT",
+            "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+        },
+        # ... other safety settings (optional)
+    ]
+
+    model = genai.GenerativeModel(model_name="gemini-1.0-pro",
+                                  generation_config=generation_config,
+                                  safety_settings=safety_settings)
+
+    response = model.generate_content(prompt)
+    # todo: Wrap this is try catch block
+    print(response.candidates[0].content.parts[0].text)
+
 
 def say(text):
     engine = pyttsx3.init()
@@ -144,5 +174,15 @@ if __name__ == '__main__':
         if "Open Music".lower() in query.lower():
             os.startfile("D:\Music\Jamie Duffy - Solas (Official Video).mp3")
                 # break
+
+        if "the time".lower() in query.lower():
+            strfTime = datetime.datetime.now().strftime("%H:%M:%S")
+            say(f"Sir time is {strfTime}")
+
+        if "open spotify".lower() in query.lower():
+            os.startfile(r"C:\Users\91905\AppData\Roaming\Spotify\spotify.exe")
+
+        if "Using Google Gemini".lower() in query.lower():
+            ai(prompt=query)
             # say(query)
             # break
